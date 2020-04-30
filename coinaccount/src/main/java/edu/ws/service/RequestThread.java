@@ -28,6 +28,9 @@ public class RequestThread {
             Map<String,String> map = new ConcurrentHashMap<>();
             map.put("username",user); //模拟页面传递的参数
             executor.execute(new DoRequest(url,map));
+//           DoRequest request =  new DoRequest(url,map);
+//           Thread thread = new Thread(request);
+//           thread.start();
         });
         executor.shutdown();
     }

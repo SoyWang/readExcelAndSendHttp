@@ -49,6 +49,11 @@ public class ReadExcel {
             //将研发部所有人员名字转成拼音
             List<String> researchUsers = transferPinyin(researchMap);
             //发送http请求创建人员名字
+//            RequestThread.run(url,researchUsers);
+            researchUsers.clear();
+            researchMap.forEach((k,v)->{
+                researchUsers.add(k);
+            });
             RequestThread.run(url,researchUsers);
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,7 +66,7 @@ public class ReadExcel {
         researchMap.forEach((k, v) -> {
             try {
                 String name = getPingYin(k);
-                System.out.println(name);
+//                System.out.println(name);
                 if (null !=name && !"".equals(name))
                     names.add(name);
             } catch (Exception e) {
@@ -106,7 +111,7 @@ public class ReadExcel {
                 continue;
             }
             researchMap.put("张殿超","研发部");
-            System.out.println(k +"："+ v);
+//            System.out.println(k +"："+ v);
         }
     }
 
