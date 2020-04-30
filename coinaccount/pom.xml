@@ -45,18 +45,22 @@
       <version>2.6.12</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.github.SilenceDut/jpinyin -->
-    <dependency>
-      <groupId>com.github.SilenceDut</groupId>
-      <artifactId>jpinyin</artifactId>
-      <version>1.0</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.github.SilenceDut</groupId>-->
+<!--      <artifactId>jpinyin</artifactId>-->
+<!--      <version>1.0</version>-->
+<!--    </dependency>-->
     <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <version>1.2.68</version>
     </dependency>
-
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -76,7 +80,7 @@
                 <transformer
                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <!-- 加载主类 -->
-<!--                  <mainClass>xyz.yuelai.App</mainClass>-->
+                  <mainClass>edu.ws.service.ReadExcel</mainClass>
                 </transformer>
               </transformers>
             </configuration>
