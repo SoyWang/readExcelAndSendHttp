@@ -1,20 +1,18 @@
 package edu.ws.utils;
 
-import org.apache.http.HttpEntity;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -31,43 +29,56 @@ public class HttpUtil {
      * @throws Exception
      */
     public static String doPostAndParam(String uriStr,Map<String,String> params) throws Exception{
-        //设置请求方式与参数
-        URI uri = new URI(uriStr);
-        HttpPost httpPost = new HttpPost(uri);
-        httpPost.getParams().setParameter("http.socket.timeout", new Integer(500000));//请求超时时间
-        httpPost.setHeader("Content-type", "application/json; charset=UTF-8");
-//        httpPost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows 2000)");
-        httpPost.setHeader("IConnection", "close");
-
-        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        AtomicReference<String> name = new AtomicReference<>("");
+        JSONObject jsonObject = new JSONObject();
         params.forEach((k,v)->{
-            nvps.add(new BasicNameValuePair(k, v));
+            jsonObject.put(k,v);
+            name.set(v);
         });
-        //...
-        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-
-
-//        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("KEY1", "VALUE1");
-//        jsonObject.put("KEY2", "VALUE2");
-//        httpPost.setEntity(new StringEntity(jsonObject.toString()));
-
-        //执行请求
-        HttpClient httpclient = new DefaultHttpClient();
-        httpclient.getParams().setParameter("Content-Encoding", "UTF-8");
-        HttpResponse response = httpclient.execute(httpPost);
-
-        //获取返回
-        HttpEntity entity = response.getEntity();
-        BufferedReader in = new BufferedReader(new InputStreamReader(entity.getContent(), "UTF-8"));
-        StringBuffer buffer = new StringBuffer();
-        String line = null;
-        while ((line = in.readLine()) != null) {
-            buffer.append(line);
-        }
-        return buffer.toString();
+        String result = HttpUtil.post(jsonObject, uriStr);
+        System.out.println(name + "---->" + "响应结果:"+result);
+        return result;
     }
 
+
+    /**
+     * 发送post请求
+     * @param json
+     * @param url
+     * @return
+     */
+    public static String post(JSONObject json, String url){
+        String result = "";
+        HttpPost post = new HttpPost(url);
+        try{
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            post.setHeader("Content-Type","application/json;charset=utf-8");
+            post.addHeader("Authorization", "Basic YWRtaW46");
+            StringEntity postingString = new StringEntity(json.toString(),"utf-8");
+            post.setEntity(postingString);
+            HttpResponse response = httpClient.execute(post);
+
+            InputStream in = response.getEntity().getContent();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, "utf-8"));
+            StringBuilder strber= new StringBuilder();
+            String line = null;
+            while((line = br.readLine())!=null){
+                strber.append(line+'\n');
+            }
+            br.close();
+            in.close();
+            result = strber.toString();
+            if(response.getStatusLine().getStatusCode()!= HttpStatus.SC_OK){
+                result = "服务器异常";
+            }
+        } catch (Exception e){
+            System.out.println("请求异常");
+            throw new RuntimeException(e.getMessage());
+        } finally{
+            post.abort();
+        }
+        return result;
+    }
 
 }
 
